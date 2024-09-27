@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <!-- Icon (success or error) -->
+    <ImageView
+        android:id="@+id/dialog_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:tint="@color/green"
+        android:layout_gravity="center" />
+
+    <!-- Title Text (Success or Error) -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_marginTop="16dp" />
+
+    <!-- Message Text (Custom message) -->
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Message"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:textColor="@color/gray"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

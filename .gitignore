@@ -1,0 +1,89 @@
+# Gradle files
+.gradle
+/build
+/local.properties
+/captures
+
+# IntelliJ/Android Studio files
+*.iml
+.idea/**
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# External native build folder generated during the build
+.externalNativeBuild
+.cxx
+
+# MacOS files
+.DS_Store
+
+# Android specific files
+/.idea/caches/build_file_checksums.ser
+**/*.apk
+**/*.ap_
+**/*.dex
+**/bin/
+**/gen/
+**/out/
+
+# Gradle Wrapper
+.gradle
+gradle/wrapper/gradle-wrapper.properties
+
+# Java files
+/build/
+/app/build/
+/**/generated/
+
+# Ignore Google Services JSON files (sometimes these files contain sensitive keys)
+/app/google-services.json
+/app/src/debug/google-services.json
+/app/src/release/google-services.json
+
+# Ignore crashlytics mapping files
+**/crashlytics-build.properties
+fabric.properties
+
+# Ignore Android profiling files
+**/capture/
+
+# Ignore local test files
+.idea/codeStyles/
+
+# Proguard files
+/proguard/
+
+# NDK
+obj/
+*.so
+*.o
+
+# Temporary files generated during development
+*.log
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/misc.xml
+
+# Keystore files (if using locally)
+/*.keystore
+/*.jks
+
+# Ignore sensitive files (optional)
+/secrets.properties
+
+# Ignore generated translation files
+*.mo
+
+# Ignore kotlin-related build files
+**/kotlin/**/build/
+
+# Ignore Jetpack Compose Compiler caches
+**/compose-compiler/**
+
+# Ignore build cache and project-level cache
+/.gradle
+/.idea/.gradle

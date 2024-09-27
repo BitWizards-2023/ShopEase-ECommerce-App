@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Order Summary -->
+    <TextView
+        android:id="@+id/order_summary_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Order Summary"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Delivery Address -->
+    <EditText
+        android:id="@+id/delivery_address_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Delivery Address"
+        android:inputType="textPostalAddress"
+        android:layout_marginTop="8dp" />
+
+    <!-- Payment Methods -->
+    <RadioGroup
+        android:id="@+id/payment_methods_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/payment_cash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cash on Delivery" />
+
+        <RadioButton
+            android:id="@+id/payment_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Card Payment" />
+    </RadioGroup>
+
+    <!-- Card Payment Fields (Initially hidden) -->
+    <EditText
+        android:id="@+id/card_number_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Card Number"
+        android:inputType="number"
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/expiry_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Expiry Date (MM/YY)"
+        android:inputType="number"
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/cvv_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CVV"
+        android:inputType="numberPassword"
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
+
+    <!-- Pay Button -->
+    <Button
+        android:id="@+id/pay_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pay"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:textColor="@android:color/white" />
+
+    <!-- Order Tracking Info (Initially hidden) -->
+    <TextView
+        android:id="@+id/order_tracking_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Order Tracking Information"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
