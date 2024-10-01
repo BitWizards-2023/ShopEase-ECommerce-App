@@ -74,8 +74,8 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String token = response.body().getToken();
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    String token = response.body().getData().getToken();
 
                     if (token != null) {
                         // Save token in SharedPreferences (or other secure storage)
@@ -124,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void showNotification(String title, String message) {
         // Create notification channel for Android O+ (API level 26+)

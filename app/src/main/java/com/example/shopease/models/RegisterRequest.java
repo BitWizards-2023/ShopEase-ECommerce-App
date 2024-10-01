@@ -6,9 +6,10 @@ public class RegisterRequest {
     private String username;
     private String firstName;
     private String lastName;
-    private String role;
+    private String role = "User";
     private Address address;
     private String phoneNumber;
+    private String profile_pic;
 
     public RegisterRequest(String email, String password, String username, String firstName, String lastName, String role, Address address, String phoneNumber) {
         this.email = email;
@@ -85,5 +86,13 @@ public class RegisterRequest {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getProfile_pic() {
+        return profile_pic;
+    }
+
+    public void setProfile_pic(String profile_pic) {
+        this.profile_pic = profile_pic;
     }
 }

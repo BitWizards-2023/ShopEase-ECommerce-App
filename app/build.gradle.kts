@@ -57,6 +57,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
 
     implementation ("com.airbnb.android:lottie:6.5.2")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+
 }
 
 // Apply the Google services plugin for Firebase

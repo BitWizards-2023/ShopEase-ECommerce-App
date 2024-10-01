@@ -16,6 +16,7 @@ import com.example.shopease.models.Address;
 public class AdditionalDetailsFragment extends Fragment {
 
     private EditText phoneInput, streetAddressInput, cityInput, stateInput, postalCodeInput, countryInput;
+    private boolean isProfileMode = false;  // Whether we are displaying profile info or not
 
     @Nullable
     @Override
@@ -30,18 +31,33 @@ public class AdditionalDetailsFragment extends Fragment {
         postalCodeInput = view.findViewById(R.id.postal_code);
         countryInput = view.findViewById(R.id.country);
 
+        // Check if arguments exist and set the fields
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            streetAddressInput.setText(arguments.getString("street", ""));
+            cityInput.setText(arguments.getString("city", ""));
+            stateInput.setText(arguments.getString("state", ""));
+            postalCodeInput.setText(arguments.getString("postalCode", ""));
+            countryInput.setText(arguments.getString("country", ""));
+        }
+
         return view;
     }
 
-    // You can also create a method to fetch the data from these fields
-    public Address getAddress() {
-        String phone = phoneInput.getText().toString();
-        String streetAddress = streetAddressInput.getText().toString();
-        String city = cityInput.getText().toString();
-        String state = stateInput.getText().toString();
-        String postalCode = postalCodeInput.getText().toString();
-        String country = countryInput.getText().toString();
+    // Method to set profile mode for displaying data instead of gathering input
+    public void setProfileMode(boolean isProfileMode) {
+        this.isProfileMode = isProfileMode;
+    }
 
-        return new Address(streetAddress, city, state, postalCode, country);
+    // Use this method to fetch data for signup
+    public Address getAddress() {
+        // Create a new Address and pass empty strings for any fields that are null
+        return new Address(
+                streetAddressInput != null ? streetAddressInput.getText().toString() : "",
+                cityInput != null ? cityInput.getText().toString() : "",
+                stateInput != null ? stateInput.getText().toString() : "",
+                postalCodeInput != null ? postalCodeInput.getText().toString() : "",
+                countryInput != null ? countryInput.getText().toString() : ""
+        );
     }
 }
