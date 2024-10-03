@@ -1,7 +1,8 @@
 package com.example.shopease.activities;
 
-import android.os.Bundle;
 import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,62 +12,83 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.shopease.R;
 import com.example.shopease.adapters.ProductAdapter;
 import com.example.shopease.models.Product;
-import com.example.shopease.models.Vendor;
+import com.example.shopease.models.ProductSearchResponse;
+import com.example.shopease.network.ApiService;
+import com.example.shopease.network.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CategoryProductsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProductAdapter productAdapter;
     private List<Product> productList;
+    private String categoryId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_products);
 
-        // Get the category name from the intent
+        // Get the categoryId from the intent
         Intent intent = getIntent();
-        String categoryName = intent.getStringExtra("categoryName");
+        categoryId = intent.getStringExtra("categoryId");
 
         // Set up the RecyclerView for product cards
         recyclerView = findViewById(R.id.recycler_view_category_products);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        // Initialize dummy vendor and product data
-        Vendor vendor1 = new Vendor("Vendor 1", "Best in electronics", "9 AM - 9 PM");
-        Vendor vendor2 = new Vendor("Vendor 2", "Best in cosmetics", "10 AM - 6 PM");
+        // Fetch products based on category from backend
+        fetchProductsByCategory(categoryId);
+    }
 
-        // Initialize dummy product data based on category
-        productList = new ArrayList<>();
-        if (categoryName.equals("Electronics")) {
-            productList.add(new Product("Laptop", "$1200", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh-HnDONwh-dmt1eDx778YjtRGtQKjLdHOoQ&s", vendor1));
-            productList.add(new Product("Headphones", "$200", "https://i5.walmartimages.com/seo/Beats-Studio3-Wireless-Noise-Cancelling-Headphones-with-Apple-W1-Headphone-Chip-Matte-Black_d0f19be2-e68f-4b82-b95c-c37db53518ba_1.868e67b856407714e2c5405a7e2f094a.jpeg", vendor2));
-        } else if (categoryName.equals("Fashion")) {
-            productList.add(new Product("Shirt", "$40", "https://www.3wisemen.co.nz/media/catalog/product/t/5/t50_236044_1.jpg?optimize=low&bg-color=255,255,255&fit=bounds&height=700&width=700&canvas=700:700", vendor1));
-            productList.add(new Product("Shoes", "$60", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMV14az0eixG3BHDTT64UlCappOQmNQjGREw&s", vendor2));
-        } else if (categoryName.equals("Home & Kitchen")) {
-            productList.add(new Product("Blender", "$80", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmPhlc3HZb51_dHmADPcGGKfV7y9_n6_fjHA&s", vendor1));
-            productList.add(new Product("Toaster", "$30", "https://clearlineappliances.com/cdn/shop/files/1_171e4ab5-8939-4425-b2dd-ef79ae02be65_700x700.png?v=1684906993", vendor2));
-        } else if (categoryName.equals("Beauty")) {
-            productList.add(new Product("Lipstick", "$20", "https://i5.walmartimages.com/seo/Mac-Retro-Matte-Lipstick-Ruby-Woo-Very-Matte-Vivid-Blue-Red-0-1-oz_83bf9ab7-39bb-4587-b4bd-f39c0a833d69.bd6a97d163c418d201f54e24c2a0dc80.jpeg", vendor1));
-            productList.add(new Product("Face Cream", "$25", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1_RJcoOWxQ4UhiTVGoeRSQKdPNjceTCZZgg&s", vendor2));
-        }
+    // Fetch products from the backend based on the selected category
+    private void fetchProductsByCategory(String categoryId) {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Call<ProductSearchResponse> call = apiService.searchProducts(categoryId, 1, 10); // Assuming default pageNumber=1 and pageSize=10
 
-        // Set up the product adapter with dummy products
-        productAdapter = new ProductAdapter(this, productList, new ProductAdapter.OnItemClickListener() {
+        call.enqueue(new Callback<ProductSearchResponse>() {
             @Override
-            public void onItemClick(Product product) {
-                // Navigate to ProductDetailsActivity with product details
-                Intent intent = new Intent(CategoryProductsActivity.this, ProductDetailsActivity.class);
-                intent.putExtra("productName", product.getName());
-                intent.putExtra("productPrice", product.getPrice());
-                intent.putExtra("productImage", product.getImageUrl());
-                startActivity(intent);
+            public void onResponse(Call<ProductSearchResponse> call, Response<ProductSearchResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    productList = new ArrayList<>();
+                    for (ProductSearchResponse.ProductData productData : response.body().getData()) {
+                        productList.add(new Product(
+                                productData.getName(),
+                                String.valueOf(productData.getPrice()),  // Convert price to String
+                                productData.getImages().get(0),  // Assuming there's at least one image
+                                productData.getVendorId()  // Store vendorId
+                        ));
+                    }
+
+                    // Set up the product adapter with fetched products
+                    productAdapter = new ProductAdapter(CategoryProductsActivity.this, productList, new ProductAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Product product) {
+                            // Navigate to ProductDetailsActivity with product details
+                            Intent intent = new Intent(CategoryProductsActivity.this, ProductDetailsActivity.class);
+                            intent.putExtra("productName", product.getName());
+                            intent.putExtra("productPrice", product.getPrice());
+                            intent.putExtra("productImage", product.getImageUrl());
+                            intent.putExtra("vendorId", product.getVendorId());  // Pass only vendorId
+                            startActivity(intent);
+                        }
+                    });
+                    recyclerView.setAdapter(productAdapter);
+                } else {
+                    Toast.makeText(CategoryProductsActivity.this, "Failed to load products", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductSearchResponse> call, Throwable t) {
+                Toast.makeText(CategoryProductsActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        recyclerView.setAdapter(productAdapter);
     }
 }

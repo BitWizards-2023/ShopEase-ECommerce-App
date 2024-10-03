@@ -59,6 +59,9 @@ dependencies {
     implementation ("com.airbnb.android:lottie:6.5.2")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
 
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+
 }
 
 // Apply the Google services plugin for Firebase

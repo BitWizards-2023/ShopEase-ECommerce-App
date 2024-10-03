@@ -1,7 +1,11 @@
 package com.example.shopease.activities;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.example.shopease.R;
@@ -44,5 +48,36 @@ public class HomeActivity extends AppCompatActivity {
 
             return true;
         });
+        handleBackPress();
+    }
+
+    private void handleBackPress() {
+        // Register a callback for handling back press
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Show a confirmation dialog before exiting the app
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Exit Application")
+                        .setMessage("Are you sure you want to exit the application?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Close the application
+                                finishAffinity();  // This will close the app and remove it from the back stack
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Dismiss the dialog and stay on the current screen
+                                dialog.dismiss();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        };
+
+        // Add the callback to the OnBackPressedDispatcher
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }

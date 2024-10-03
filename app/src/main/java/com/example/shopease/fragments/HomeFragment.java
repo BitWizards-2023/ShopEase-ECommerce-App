@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +23,18 @@ import com.example.shopease.adapters.CategoryAdapter;
 import com.example.shopease.adapters.ProductAdapter;
 import com.example.shopease.models.Category;
 import com.example.shopease.models.Product;
+import com.example.shopease.models.ProductResponse;
 import com.example.shopease.models.Vendor;
+import com.example.shopease.models.CategoryResponse;
+import com.example.shopease.network.ApiService;
+import com.example.shopease.network.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
@@ -47,33 +56,6 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
 
-        // Initialize dummy vendor and product data
-        Vendor vendor1 = new Vendor("Vendor 1", "Best in electronics", "9 AM - 9 PM");
-        Vendor vendor2 = new Vendor("Vendor 2", "Best in cosmetics", "10 AM - 6 PM");
-
-
-        // Initialize dummy product data
-        productList = new ArrayList<>();
-        productList.add(new Product("Product 1", "$20", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOZUfCF7SyZxiR6aC-w6RUK3oNCFvkzeO4VQ&s", vendor1));
-        productList.add(new Product("Product 2", "$40", "https://img.freepik.com/premium-photo/ultra-realistic-orange-background-4k-hd-photo-product_1193781-21514.jpg", vendor2));
-        productList.add(new Product("Product 3", "$60", "https://img.freepik.com/free-photo/3d-beauty-product-studio_23-2151401472.jpg", vendor1));
-        productList.add(new Product("Product 4", "$80", "https://img.freepik.com/free-photo/organic-cosmetic-product-with-dreamy-aesthetic-fresh-background_23-2151382816.jpg", vendor2));
-
-        // Set up the product adapter with click listener
-        productAdapter = new ProductAdapter(getActivity(), productList, new ProductAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Product product) {
-                // Navigate to ProductDetailsActivity and pass product data
-                Intent intent = new Intent(getActivity(), ProductDetailsActivity.class);
-                intent.putExtra("productName", product.getName());
-                intent.putExtra("productPrice", product.getPrice());
-                intent.putExtra("productImage", product.getImageUrl());
-                intent.putExtra("vendor", product.getVendor());  // Pass the Vendor object
-                startActivity(intent);
-                startActivity(intent);
-            }
-        });
-        recyclerView.setAdapter(productAdapter);
 
         // Set up the ViewPager2 for carousel
         viewPager = view.findViewById(R.id.view_pager);
@@ -94,19 +76,95 @@ public class HomeFragment extends Fragment {
         LinearLayoutManager categoryLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         categoryRecyclerView.setLayoutManager(categoryLayoutManager);
 
-        // Initialize dummy category data
-        categoryList = new ArrayList<>();
-        categoryList.add(new Category("Electronics", "https://www.codrey.com/wp-content/uploads/2017/12/Consumer-Electronics.png"));
-        categoryList.add(new Category("Fashion", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqtfoMRBIbztGVc6RJ8_ld3YbcINKogb29Yg&s"));
-        categoryList.add(new Category("Home & Kitchen", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQoXMCHARa2hp7f_b-_p0SUDeH1eX_uu5Rhw&s"));
-        categoryList.add(new Category("Beauty", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdnqVnRmEgl0GnV06ujlPzwycOrtSnxxxXTA&s"));
+        // Fetch categories from the backend
+        fetchCategories();
 
-        // Set up the category adapter
-        categoryAdapter = new CategoryAdapter(getActivity(), categoryList);
-        categoryRecyclerView.setAdapter(categoryAdapter);
+        //Fetch product data from backend
+        fetchProducts();
 
         return view;
     }
+
+    // Fetch categories from the backend API
+    private void fetchCategories() {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Call<CategoryResponse> call = apiService.getCategories();
+
+        call.enqueue(new Callback<CategoryResponse>() {
+            @Override
+            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Populate the category list with data from the API response
+                    categoryList = new ArrayList<>();
+                    for (CategoryResponse.CategoryData categoryData : response.body().getData()) {
+                        categoryList.add(new Category(
+                                categoryData.getId(),
+                                categoryData.getName(),
+                                categoryData.getImageUrl()
+                        ));
+                    }
+
+                    // Set up the category adapter with fetched data
+                    categoryAdapter = new CategoryAdapter(getActivity(), categoryList);
+                    categoryRecyclerView.setAdapter(categoryAdapter);
+                } else {
+                    Toast.makeText(getActivity(), "Failed to load categories", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                Toast.makeText(getActivity(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Fetch product data from the backend API
+    private void fetchProducts() {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Call<ProductResponse> call = apiService.getProducts();
+
+        call.enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Populate the product list with data from the API response
+                    productList = new ArrayList<>();
+                    for (ProductResponse.ProductData productData : response.body().getData()) {
+                        productList.add(new Product(
+                                productData.getName(),
+                                String.valueOf(productData.getPrice()),  // Assuming price is int, so converting to String
+                                productData.getImages().get(0),  // Assuming at least one image is available
+                                productData.getVendorId()  // Store vendorId instead of the full vendor object
+                        ));
+                    }
+
+                    // Set up the product adapter with click listener
+                    productAdapter = new ProductAdapter(getActivity(), productList, new ProductAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Product product) {
+                            // Navigate to ProductDetailsActivity and pass product data
+                            Intent intent = new Intent(getActivity(), ProductDetailsActivity.class);
+                            intent.putExtra("productName", product.getName());
+                            intent.putExtra("productPrice", product.getPrice());
+                            intent.putExtra("productImage", product.getImageUrl());
+                            intent.putExtra("vendorId", product.getVendorId());  // Pass only the vendor ID
+                            startActivity(intent);
+                        }
+                    });
+                    recyclerView.setAdapter(productAdapter);
+                } else {
+                    Toast.makeText(getActivity(), "Failed to load products", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                Toast.makeText(getActivity(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     // Function to auto-scroll the ViewPager2 (carousel)
     private void autoScrollViewPager() {

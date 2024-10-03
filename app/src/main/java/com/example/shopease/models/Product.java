@@ -4,13 +4,13 @@ public class Product {
     private String name;
     private String price;
     private String imageUrl;
-    private Vendor vendor;
+    private String vendorId;
 
-    public Product(String name, String price, String imageUrl, Vendor vendor) {
+    public Product(String name, String price, String imageUrl, String vendor) {
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.vendor = vendor;
+        this.vendorId = vendorId;
     }
 
     // Getters
@@ -26,8 +26,8 @@ public class Product {
         return imageUrl;
     }
 
-    public Vendor getVendor() {
-        return vendor;
+    public String getVendorId() {
+        return vendorId;
     }
 
     // Setters
@@ -43,7 +43,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public void setVendor(Vendor vendor) {
-        this.vendor = vendor;
+    public void setVendor(String vendorId) {
+        this.vendorId = vendorId;
     }
 }
