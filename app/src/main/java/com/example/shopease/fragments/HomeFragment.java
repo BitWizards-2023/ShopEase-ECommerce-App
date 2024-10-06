@@ -131,12 +131,15 @@ public class HomeFragment extends Fragment {
                     // Populate the product list with data from the API response
                     productList = new ArrayList<>();
                     for (ProductResponse.ProductData productData : response.body().getData()) {
-                        productList.add(new Product(
-                                productData.getName(),
-                                String.valueOf(productData.getPrice()),  // Assuming price is int, so converting to String
-                                productData.getImages().get(0),  // Assuming at least one image is available
-                                productData.getVendorId()  // Store vendorId instead of the full vendor object
-                        ));
+                        if(productData.isActive()){
+                            productList.add(new Product(
+                                    productData.getName(),
+                                    String.valueOf(productData.getPrice()),  // Assuming price is int, so converting to String
+                                    productData.getImages().get(0),  // Assuming at least one image is available
+                                    productData.getVendorId(),  // Store vendorId instead of the full vendor object
+                                    productData.getDescription()
+                            ));
+                        }
                     }
 
                     // Set up the product adapter with click listener
@@ -149,6 +152,7 @@ public class HomeFragment extends Fragment {
                             intent.putExtra("productPrice", product.getPrice());
                             intent.putExtra("productImage", product.getImageUrl());
                             intent.putExtra("vendorId", product.getVendorId());  // Pass only the vendor ID
+                            intent.putExtra("productDescription", product.getDescription());
                             startActivity(intent);
                         }
                     });

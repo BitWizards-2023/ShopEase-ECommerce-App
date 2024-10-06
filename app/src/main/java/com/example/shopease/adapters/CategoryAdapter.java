@@ -52,6 +52,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 // Navigate to CategoryProductsActivity with categoryId
                 Intent intent = new Intent(context, CategoryProductsActivity.class);
                 intent.putExtra("categoryId", category.getId());  // Pass the categoryId
+                intent.putExtra("categoryName", category.getName());
                 context.startActivity(intent);
             }
         });

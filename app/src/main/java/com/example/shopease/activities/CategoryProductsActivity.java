@@ -2,6 +2,9 @@ package com.example.shopease.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -29,6 +32,8 @@ public class CategoryProductsActivity extends AppCompatActivity {
     private ProductAdapter productAdapter;
     private List<Product> productList;
     private String categoryId;
+    private String categoryName;
+    private TextView categoryTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,7 +42,13 @@ public class CategoryProductsActivity extends AppCompatActivity {
 
         // Get the categoryId from the intent
         Intent intent = getIntent();
+        categoryTitle = findViewById(R.id.category_name_text);
+        // Back button functionality
+        ImageView backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(v -> onBackPressed());
         categoryId = intent.getStringExtra("categoryId");
+        categoryName = getIntent().getStringExtra("categoryName");
+        categoryTitle.setText(categoryName);
 
         // Set up the RecyclerView for product cards
         recyclerView = findViewById(R.id.recycler_view_category_products);
@@ -62,7 +73,8 @@ public class CategoryProductsActivity extends AppCompatActivity {
                                 productData.getName(),
                                 String.valueOf(productData.getPrice()),  // Convert price to String
                                 productData.getImages().get(0),  // Assuming there's at least one image
-                                productData.getVendorId()  // Store vendorId
+                                productData.getVendorId(),  // Store vendorId
+                                productData.getDescription()
                         ));
                     }
 
@@ -75,6 +87,8 @@ public class CategoryProductsActivity extends AppCompatActivity {
                             intent.putExtra("productName", product.getName());
                             intent.putExtra("productPrice", product.getPrice());
                             intent.putExtra("productImage", product.getImageUrl());
+                            intent.putExtra("productDescription", product.getDescription());
+                            Log.d("ProductDetails", "Product Description: " + product.getDescription());
                             intent.putExtra("vendorId", product.getVendorId());  // Pass only vendorId
                             startActivity(intent);
                         }

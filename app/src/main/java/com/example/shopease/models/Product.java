@@ -1,16 +1,21 @@
 package com.example.shopease.models;
 
+import java.util.List;
+
 public class Product {
     private String name;
     private String price;
     private String imageUrl;
     private String vendorId;
+    private String description;
 
-    public Product(String name, String price, String imageUrl, String vendor) {
+
+    public Product(String name, String price, String imageUrl, String vendor, String description) {
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
         this.vendorId = vendorId;
+        this.description = description;
     }
 
     // Getters
@@ -45,5 +50,17 @@ public class Product {
 
     public void setVendor(String vendorId) {
         this.vendorId = vendorId;
+    }
+
+    public void setVendorId(String vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

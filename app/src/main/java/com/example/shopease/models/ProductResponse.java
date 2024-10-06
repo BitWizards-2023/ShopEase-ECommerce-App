@@ -45,6 +45,15 @@ public class ProductResponse {
         private int stockLevel;
         private int lowStockThreshold;
         private boolean isFeatured;
+        private boolean isActive;
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void setActive(boolean active) {
+            isActive = active;
+        }
 
         // Getters and Setters for the fields
         public String getId() {
