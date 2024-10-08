@@ -9,6 +9,7 @@ Date: 2024/09/29
 package com.example.shopease.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,10 +25,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.auth0.android.jwt.Claim;
+import com.auth0.android.jwt.JWT;
 import com.bumptech.glide.Glide;
 import com.example.shopease.R;
+import com.example.shopease.activities.MainActivity;
 import com.example.shopease.adapters.ProfileViewPagerAdapter;
 import com.example.shopease.models.Address;
+import com.example.shopease.models.LogoutRequest;
 import com.example.shopease.models.UpdateProfileRequest;
 import com.example.shopease.models.UpdateProfileResponse;
 import com.example.shopease.models.UserProfileResponse;
@@ -43,14 +48,15 @@ import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
 
-    private static final String TAG = "ProfileFragment"; // Tag for logging
-    private TabLayout tabLayout; // Tab layout for the profile page
-    private ViewPager2 viewPager; // ViewPager2 for switching between profile tabs
-    private ImageView profileImageView; // Profile image view
-    private TextView usernameText; // Text view for displaying the username
-    private ProfileViewPagerAdapter adapter; // Adapter for the ViewPager2
-    private Button updateProfileButton; // Button to update the profile
-    private String userId; // ID of the logged-in user
+    private static final String TAG = "ProfileFragment";
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+    private ImageView profileImageView;
+    private ImageView logoutButton;
+    private TextView usernameText;
+    private ProfileViewPagerAdapter adapter;
+    private Button updateProfileButton;
+    private String userId;
 
     @Nullable
     @Override
@@ -63,6 +69,7 @@ public class ProfileFragment extends Fragment {
         tabLayout = view.findViewById(R.id.profile_tab_layout);
         viewPager = view.findViewById(R.id.profile_view_pager);
         updateProfileButton = view.findViewById(R.id.update_profile_button);
+        logoutButton = view.findViewById(R.id.logout_button);
 
         Log.e(TAG, "ProfileFragment view created.");
 
@@ -71,6 +78,9 @@ public class ProfileFragment extends Fragment {
 
         // Handle the update profile button click
         updateProfileButton.setOnClickListener(view1 -> updateUserProfile());
+
+        // Handle logout button click
+        logoutButton.setOnClickListener(v -> performLogout());
 
         return view;
     }
@@ -196,6 +206,76 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getContext(), "User is not logged in", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /**
+     * Logs the user out by making an API call and then clearing the JWT token.
+     */
+    private void performLogout() {
+        // Retrieve JWT from SharedPreferences
+        Context context = getContext();
+        String token = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null);
+
+        if (token != null) {
+            // Decode JWT to get email
+            JWT jwt = new JWT(token);
+            Claim emailClaim = jwt.getClaim("email");
+            String email = emailClaim.asString();
+            if (email == null) {
+                Toast.makeText(getContext(), "Failed to extract email from token", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to extract email from token");
+                return;
+            }
+
+            Log.e(TAG, "Email extracted: " + email);
+
+            // Create LogoutRequest with extracted email
+            LogoutRequest logoutRequest = new LogoutRequest(email);
+
+            // Make API call to log out
+            ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+            Call<Void> call = apiService.logoutUser(logoutRequest);
+
+            // Log request for debugging
+            Log.e(TAG, "Logout request for email: " + email);
+
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.e(TAG, "Logout successful");
+
+                        // Clear the JWT token
+                        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                                .edit()
+                                .remove("jwt_token")
+                                .apply();
+
+                        Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+                        // Navigate back to MainActivity
+                        Intent intent = new Intent(getActivity(), MainActivity.class);
+                        startActivity(intent);
+                        getActivity().finish(); // Close the ProfileActivity
+                    } else {
+                        Log.e(TAG, "Logout failed. Response: " + response.message());
+                        Toast.makeText(getContext(), "Logout failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e(TAG, "Logout error: " + t.getMessage());
+                    Toast.makeText(getContext(), "Logout error", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "No JWT token found in SharedPreferences.");
+            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     /**
      * Sets up the ViewPager2 with fragments for basic details and additional details using the fetched profile data.

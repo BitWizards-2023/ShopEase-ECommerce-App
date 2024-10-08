@@ -1,8 +1,18 @@
+/*
+File: ApiService.java
+Description: Interface defining the API service endpoints for the Shopease application. It includes methods for user authentication, profile management, product and category retrieval, cart management, and placing orders. This service uses Retrofit for making HTTP requests to the backend.
+The methods include various types of requests such as POST, PUT, GET, and Multipart requests for handling different operations in the app.
+Author: Senula Nanayakkara
+Date: 2024/09/30
+*/
 package com.example.shopease.network;
 
+import com.example.shopease.models.CartRequest;
 import com.example.shopease.models.CategoryResponse;
+import com.example.shopease.models.DetailedProductResponse;
 import com.example.shopease.models.LoginRequest;
 import com.example.shopease.models.LoginResponse;
+import com.example.shopease.models.LogoutRequest;
 import com.example.shopease.models.OrderRequest;
 import com.example.shopease.models.OrderResponse;
 import com.example.shopease.models.ProductResponse;
@@ -13,6 +23,8 @@ import com.example.shopease.models.UpdateProfileRequest;
 import com.example.shopease.models.UpdateProfileResponse;
 import com.example.shopease.models.UploadResponse;
 import com.example.shopease.models.UserProfileResponse;
+import com.example.shopease.models.VendorProfileResponse;
+import com.example.shopease.models.CartResponse;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -20,19 +32,24 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
 
+    //POST request for register customer
     @POST("/api/v1/auth/register")
     Call<RegisterResponse> registerUser(@Body RegisterRequest request);
 
+    //POST request for login customer
     @POST("/api/v1/auth/login")
     Call<LoginResponse> loginUser(@Body LoginRequest loginRequest);
 
+    //POST request for upload image file
     @Multipart
     @POST("/api/Blob/upload")
     Call<UploadResponse> uploadImage(@Part MultipartBody.Part image);
@@ -44,11 +61,21 @@ public interface ApiService {
     @PUT("/api/v1/User/update-me")
     Call<UpdateProfileResponse> updateUserProfile(@Header("Authorization") String authToken, @Body UpdateProfileRequest request);
 
+    // Logout user
+    @POST("/api/v1/Auth/logout")
+    Call<Void> logoutUser(@Body LogoutRequest logoutRequest);
+
+    //Fetch Categories
     @GET("/api/Category")
     Call<CategoryResponse> getCategories();
 
+    //Fetch Products
     @GET("api/v1/products")
     Call<ProductResponse> getProducts();
+
+    //Fetch prdocut by id
+    @GET("/api/v1/products/{id}")
+    Call<DetailedProductResponse> getProductDetails(@Path("id") String productId);
 
     // New method to search products by category
     @GET("api/v1/products/search")
@@ -58,12 +85,31 @@ public interface ApiService {
             @Query("pageSize") int pageSize
     );
 
+    //Place a new order
     @POST("/api/v1/orders")
     Call<Void> placeOrder(
-            @Header("Authorization") String authToken,   // Authorization header
-            @Body OrderRequest orderRequest              // Order request body
+            @Header("Authorization") String authToken,
+            @Body OrderRequest orderRequest
     );
 
+    //Fetch list of orders for customer
     @GET("api/v1/orders/customer")
     Call<OrderResponse> getCustomerOrders(@Header("Authorization") String token);
+
+    // PUT request to update cart item
+    @PUT("/api/v1/cart/items")
+    Call<Void> updateCartItem(@Body CartRequest cartRequest, @Header("Authorization") String authHeader);
+
+    // GET request to fetch cart items
+    @GET("/api/v1/cart")
+    Call<CartResponse> getCartItems(@Header("Authorization") String authHeader);
+
+    /**
+     * Fetches the vendor profile details based on the vendorId.
+     */
+    @GET("/api/VendorRating/profile/{vendorId}")
+    Call<VendorProfileResponse> getVendorProfile(
+            @Path("vendorId") String vendorId,
+            @Header("Authorization") String authHeader
+    );
 }

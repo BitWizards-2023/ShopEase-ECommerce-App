@@ -65,6 +65,7 @@
                 android:textColor="@android:color/white"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
+
         <!-- Product Description -->
         <TextView
             android:id="@+id/product_description"
@@ -74,14 +75,31 @@
             android:textSize="14sp"
             android:layout_marginTop="16dp" />
 
-        <!-- Product Ratings -->
-        <TextView
-            android:id="@+id/product_rating"
-            android:layout_width="wrap_content"
+        <!-- Rating Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ratings: ★★★★☆"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <!-- Rating Text -->
+            <TextView
+                android:id="@+id/product_rating_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ratings: "
+                android:textSize="16sp" />
+
+            <!-- Star Icon (Clickable) -->
+            <ImageView
+                android:id="@+id/rating_star"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/btn_star"
+                android:layout_marginStart="8dp"
+                android:onClick="showRatingDialog" />
+        </LinearLayout>
 
         <!-- Vendor Information Section -->
         <TextView
@@ -120,8 +138,6 @@
             android:text="Opening Hours: 9 AM - 9 PM"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
-
-
 
     </LinearLayout>
 </ScrollView>

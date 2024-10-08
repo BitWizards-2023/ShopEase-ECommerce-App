@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:gravity="center"
+    android:background="@drawable/rounded_corner">
+
+    <!-- Dialog Header -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please Rate Us"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/gray"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Comment Section -->
+    <EditText
+        android:id="@+id/comment_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Leave a comment"
+        android:textColor="@color/white"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <!-- Star Rating -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- 5 Stars for Rating -->
+        <ImageView
+            android:id="@+id/star_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:onClick="rateStar" />
+        <ImageView
+            android:id="@+id/star_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:onClick="rateStar" />
+        <ImageView
+            android:id="@+id/star_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:onClick="rateStar" />
+        <ImageView
+            android:id="@+id/star_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:onClick="rateStar" />
+        <ImageView
+            android:id="@+id/star_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:onClick="rateStar" />
+    </LinearLayout>
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/submit_rating_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp" />
+</LinearLayout>

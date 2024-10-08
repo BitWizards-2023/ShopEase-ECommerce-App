@@ -1,11 +1,9 @@
 /*
-
-File: HomeActivity.java
-Description: Handles the main home screen functionality, including navigation between different fragments (Home, Cart, Orders, Profile). Also manages the back press to confirm app exit.
-Author: Senula Nanayakkara
-Date: 2024/09/25
-
-*/
+ * File: SignupActivity.java
+ * Description: This activity handles the user registration process in the ShopEase application. It allows users to enter basic and additional details, upload a profile picture, and register their account by interacting with the backend API. The activity also manages image selection from the gallery, image upload to the server, and redirects the user to the login screen upon successful registration.
+ * Author: Senula Nanayakkara
+ * Date: 2024/09/25
+ */
 package com.example.shopease.activities;
 
 import android.annotation.SuppressLint;

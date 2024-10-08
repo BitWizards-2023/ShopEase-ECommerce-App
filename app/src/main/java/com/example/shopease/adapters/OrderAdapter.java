@@ -1,7 +1,7 @@
 /*
 
 File: OrderAdapter.java
-Description: Adapter for managing and displaying order details in a RecyclerView. It binds order data, including status, date, and product information, and dynamically sets the delivery status icon.
+Description: Adapter for managing and displaying order details in a RecyclerView. It binds order data from the backend, including status, date, and product information, and dynamically sets the delivery status icon.
 Author: Senula Nanayakkara
 Date: 2024/10/05
 
@@ -20,17 +20,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.shopease.R;
-import com.example.shopease.models.Order;
+import com.example.shopease.models.OrderResponse;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
     private Context context; // Context to access resources and load data
-    private List<Order> orderList; // List of orders to display
+    private List<OrderResponse.OrderData> orderList; // List of orders from the backend
 
     // Constructor to initialize the context and the order list
-    public OrderAdapter(Context context, List<Order> orderList) {
+    public OrderAdapter(Context context, List<OrderResponse.OrderData> orderList) {
         this.context = context;
         this.orderList = orderList;
     }
@@ -53,27 +57,40 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
      */
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        Order order = orderList.get(position);
+        OrderResponse.OrderData order = orderList.get(position);
 
-        // Set order status and date
+        // Set order status, date, and other details
         holder.orderStatus.setText(order.getStatus());
-        holder.orderDate.setText(order.getDate());
 
-        // Set order ID and tracking ID
-        holder.orderId.setText("Order #" + order.getOrderId());
-        holder.trackingId.setText("Tracking #" + order.getTrackingId());
+        // Format and display the date in a user-friendly format
+        String formattedDate = formatTimestamp(order.getCreatedAt());
+        holder.orderDate.setText(formattedDate);
 
-        // Set product name and load product image dynamically
-        holder.productName.setText(order.getProduct().getName());
-        Glide.with(context)
-                .load(order.getProduct().getImageUrl())  // Load product image from URL
-                .into(holder.productImage);
+        holder.orderId.setText("Order #" + order.getOrderNumber());
+        holder.trackingId.setText("Tracking #" + order.getId());
 
-        // Dynamically set the status icon based on order status
+        // Assuming each order contains at least one item
+        if (!order.getItems().isEmpty()) {
+            OrderResponse.OrderData.OrderItem orderItem = order.getItems().get(0);
+            OrderResponse.OrderData.OrderItem.ProductDetails productDetails = orderItem.getProductDetails();
+
+            // Set product name
+            holder.productName.setText(productDetails.getName());
+
+            // Load product image (assuming there's at least one image)
+            if (!productDetails.getImages().isEmpty()) {
+                Glide.with(context)
+                        .load(productDetails.getImages().get(0))
+                        .into(holder.productImage);
+            }
+        }
+
+        // Dynamically set the status icon based on the order status
         switch (order.getStatus().toLowerCase()) {
             case "delivered":
                 holder.deliveryStatusIcon.setImageResource(R.drawable.ic_delivered);  // Icon for delivered status
                 break;
+            case "processing":
             case "in transit":
                 holder.deliveryStatusIcon.setImageResource(R.drawable.ic_in_transit);  // Icon for in transit status
                 break;
@@ -84,7 +101,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 holder.deliveryStatusIcon.setImageResource(R.drawable.ic_cancelled);  // Icon for cancelled status
                 break;
             default:
-                holder.deliveryStatusIcon.setImageResource(R.drawable.ic_pending);  // Default status icon
+                holder.deliveryStatusIcon.setImageResource(R.drawable.ic_pending);  // Default pending icon
                 break;
         }
     }
@@ -95,6 +112,26 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public int getItemCount() {
         return orderList.size();
+    }
+
+    /**
+     * Formats a timestamp string to a user-friendly format like "07 Oct 2024, 18:52 PM".
+     *
+     * @param timestamp The original timestamp string (e.g., 2024-10-07T18:52:59.883+00:00).
+     * @return The formatted date string.
+     */
+    private String formatTimestamp(String timestamp) {
+        // Define the original format and target format
+        SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault());
+        SimpleDateFormat targetFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm a", Locale.getDefault());
+
+        try {
+            Date date = originalFormat.parse(timestamp);
+            return targetFormat.format(date);  // Return the formatted date
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return timestamp;  // In case of an error, return the original timestamp
+        }
     }
 
     // ViewHolder class to hold references to the views in each order item layout

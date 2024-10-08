@@ -27,6 +27,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,7 @@ public class OrderActivity extends AppCompatActivity {
 
         // Get cart items passed through the intent
         cartItemList = (List<CartItem>) getIntent().getSerializableExtra("cartItems");
+
         if (cartItemList == null) {
             cartItemList = new ArrayList<>();
         }
@@ -134,9 +136,20 @@ public class OrderActivity extends AppCompatActivity {
                         showOrderTracking();
                         isOrderPaid = true;
                     } else {
+                        // Log the error message for further debugging
                         Log.e("OrderActivity", "Failed to place order: " + response.message());
+
+                        // Check if the response body contains more information and log it
+                        try {
+                            if (response.errorBody() != null) {
+                                Log.e("OrderActivity", "Error Body: " + response.errorBody().string());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
+
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
@@ -162,9 +175,7 @@ public class OrderActivity extends AppCompatActivity {
                     .append(item.getPrice())
                     .append(" x ")
                     .append(item.getQuantity())
-                    .append("\nVendor: ")
-                    .append(item.getVendor().getName())
-                    .append("\n\n");
+                    .append("\nVendor: ");
 
             // Calculate the total cost of items in the cart
             total += item.getPrice() * item.getQuantity();
