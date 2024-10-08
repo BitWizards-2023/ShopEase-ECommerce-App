@@ -1,41 +1,55 @@
+/*
+
+File: Order.java
+Description: This class represents an order, containing details such as the order ID, tracking ID, product, status, and order date.
+Author: Senula Nanayakkara
+Date: 2024/10/05
+
+*/
+
 package com.example.shopease.models;
 
 import java.io.Serializable;
 
-public class Order implements Serializable {
-    private String orderId;
-    private String productDetails;
-    private boolean isPaid;
-    private String orderStatus;
+public class Order {
 
-    public Order(String orderId, String productDetails, boolean isPaid, String orderStatus) {
+    private String orderId;
+    private String trackingId;
+    private Product product;
+    private String status;
+    private String date;
+
+    // Constructor to initialize an Order object with all its details.
+    public Order(String orderId, String trackingId, Product product, String status, String date) {
         this.orderId = orderId;
-        this.productDetails = productDetails;
-        this.isPaid = isPaid;
-        this.orderStatus = orderStatus;
+        this.trackingId = trackingId;
+        this.product = product;
+        this.status = status;
+        this.date = date;
     }
 
+    // Get the unique identifier for the order.
     public String getOrderId() {
         return orderId;
     }
 
-    public String getProductDetails() {
-        return productDetails;
+    // Get the tracking ID for the order.
+    public String getTrackingId() {
+        return trackingId;
     }
 
-    public boolean isPaid() {
-        return isPaid;
+    // Get the product associated with the order.
+    public Product getProduct() {
+        return product;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    // Get the current status of the order.
+    public String getStatus() {
+        return status;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
-    public void setPaid(boolean paid) {
-        isPaid = paid;
+    // Get the date when the order was placed.
+    public String getDate() {
+        return date;
     }
 }

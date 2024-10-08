@@ -65,11 +65,43 @@
             android:visibility="gone" />
 
         <!-- Delivery Address -->
-        <EditText
-            android:id="@+id/delivery_address_input"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Delivery Address" />
+            android:text="Delivery Address"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingTop="16dp" />
+
+        <EditText
+            android:id="@+id/street_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Street" />
+
+        <EditText
+            android:id="@+id/city_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="City" />
+
+        <EditText
+            android:id="@+id/state_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="State" />
+
+        <EditText
+            android:id="@+id/postal_code_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Postal Code" />
+
+        <EditText
+            android:id="@+id/country_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Country" />
 
         <!-- Pay Button -->
         <Button

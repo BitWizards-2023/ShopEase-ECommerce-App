@@ -1,3 +1,11 @@
+/*
+
+File: HomeFragment.java
+Description: Fragment for displaying the home page of the application. It includes a product grid, category list, and a carousel for promotional images. Data is fetched from a backend API, and products can be clicked to view more details.
+Author: Senula Nanayakkara
+Date: 2024/09/28
+
+*/
 package com.example.shopease.fragments;
 
 import android.content.Intent;
@@ -54,12 +62,12 @@ public class HomeFragment extends Fragment {
 
         // Set up the RecyclerView for product cards
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2)); // Set up product grid with 2 columns
 
         // Set up the ViewPager2 for carousel
         viewPager = view.findViewById(R.id.view_pager);
         carouselImages = new ArrayList<>();
+        // Adding sample carousel images
         carouselImages.add("https://img.freepik.com/free-psd/black-friday-super-sale-web-banner-template_106176-1672.jpg?w=996&t=st=1726637866~exp=1726638466~hmac=39a94df74243b8aa64f7cadaa5f7dd73e6172e40c2bad8fbf4e10dd46aa34038");
         carouselImages.add("https://img.freepik.com/free-psd/black-friday-super-sale-web-banner-template_120329-3861.jpg?w=1060&t=st=1726637788~exp=1726638388~hmac=99476cd0a0a75595a427f1f09e8185ada49c4d514114f99ca9c628e5ca9ba1bd");
         carouselImages.add("https://img.freepik.com/free-psd/black-friday-super-sale-facebook-cover-template_106176-1555.jpg?w=1380&t=st=1726637992~exp=1726638592~hmac=3845ee4ffb845f66657123f8f8999a2f06d3cdf5044f06513905bc3737a47f70");
@@ -79,13 +87,15 @@ public class HomeFragment extends Fragment {
         // Fetch categories from the backend
         fetchCategories();
 
-        //Fetch product data from backend
+        // Fetch product data from backend
         fetchProducts();
 
         return view;
     }
 
-    // Fetch categories from the backend API
+    /**
+     * Fetches categories from the backend API and populates the category RecyclerView.
+     */
     private void fetchCategories() {
         ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
         Call<CategoryResponse> call = apiService.getCategories();
@@ -119,7 +129,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    // Fetch product data from the backend API
+    /**
+     * Fetches product data from the backend API and populates the product RecyclerView.
+     */
     private void fetchProducts() {
         ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
         Call<ProductResponse> call = apiService.getProducts();
@@ -133,10 +145,11 @@ public class HomeFragment extends Fragment {
                     for (ProductResponse.ProductData productData : response.body().getData()) {
                         if(productData.isActive()){
                             productList.add(new Product(
+                                    productData.getId(),
                                     productData.getName(),
-                                    String.valueOf(productData.getPrice()),  // Assuming price is int, so converting to String
-                                    productData.getImages().get(0),  // Assuming at least one image is available
-                                    productData.getVendorId(),  // Store vendorId instead of the full vendor object
+                                    String.valueOf(productData.getPrice()),
+                                    productData.getImages().get(0),
+                                    productData.getVendorId(),
                                     productData.getDescription()
                             ));
                         }
@@ -148,10 +161,11 @@ public class HomeFragment extends Fragment {
                         public void onItemClick(Product product) {
                             // Navigate to ProductDetailsActivity and pass product data
                             Intent intent = new Intent(getActivity(), ProductDetailsActivity.class);
+                            intent.putExtra("productId", product.getProductId());
                             intent.putExtra("productName", product.getName());
                             intent.putExtra("productPrice", product.getPrice());
                             intent.putExtra("productImage", product.getImageUrl());
-                            intent.putExtra("vendorId", product.getVendorId());  // Pass only the vendor ID
+                            intent.putExtra("vendorId", product.getVendorId());  // Pass vendor ID
                             intent.putExtra("productDescription", product.getDescription());
                             startActivity(intent);
                         }
@@ -169,8 +183,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
-
-    // Function to auto-scroll the ViewPager2 (carousel)
+    /**
+     * Auto-scrolls the ViewPager2 (carousel) every 3 seconds.
+     */
     private void autoScrollViewPager() {
         final Handler handler = new Handler();
         Runnable runnable = new Runnable() {
@@ -179,7 +194,7 @@ public class HomeFragment extends Fragment {
                 int currentItem = viewPager.getCurrentItem();
                 int totalItems = carouselAdapter.getItemCount();
                 if (currentItem < totalItems - 1) {
-                    viewPager.setCurrentItem(currentItem + 1);
+                    viewPager.setCurrentItem(currentItem + 1);  // Scroll to the next item
                 } else {
                     viewPager.setCurrentItem(0); // Loop back to the first item
                 }

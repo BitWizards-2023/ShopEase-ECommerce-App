@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.example.shopease.R;
 import com.example.shopease.fragments.CartFragment;
 import com.example.shopease.fragments.HomeFragment;
@@ -24,14 +25,17 @@ public class HomeActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Set default fragment
+        // Set default fragment to HomeFragment
         getSupportFragmentManager().beginTransaction().replace(R.id.home_fragment_container, new HomeFragment()).commit();
 
+        // Handle navigation item selection and switch between fragments
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
 
-            int itemId = item.getItemId(); // Get the ID of the clicked item
+            // Get the ID of the clicked navigation item
+            int itemId = item.getItemId();
 
+            // Determine which fragment to load based on the selected item
             if (itemId == R.id.navigation_home) {
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.navigation_cart) {
@@ -42,33 +46,39 @@ public class HomeActivity extends AppCompatActivity {
                 selectedFragment = new ProfileFragment();
             }
 
+            // Replace the current fragment with the selected fragment
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.home_fragment_container, selectedFragment).commit();
             }
 
             return true;
         });
+
+        // Call method to handle back press
         handleBackPress();
     }
 
+    /**
+     * Handles back press event and shows a confirmation dialog before exiting the application.
+     */
     private void handleBackPress() {
-        // Register a callback for handling back press
+        // Register a callback to handle the back press event
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // Show a confirmation dialog before exiting the app
+                // Show a confirmation dialog when back button is pressed
                 new AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Exit Application")
                         .setMessage("Are you sure you want to exit the application?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // Close the application
-                                finishAffinity();  // This will close the app and remove it from the back stack
+                                // Exit the application and remove it from the back stack
+                                finishAffinity();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // Dismiss the dialog and stay on the current screen
+                                // Dismiss the dialog and remain in the app
                                 dialog.dismiss();
                             }
                         })
@@ -77,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         };
 
-        // Add the callback to the OnBackPressedDispatcher
+        // Add the callback to the OnBackPressedDispatcher for the current activity
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }

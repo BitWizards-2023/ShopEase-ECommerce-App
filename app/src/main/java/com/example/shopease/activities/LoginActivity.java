@@ -1,3 +1,11 @@
+/*
+
+File: LoginActivity.java
+Description: Handles user login and redirects to the home screen upon successful login. It also manages the UI for email and password input and interacts with the backend for authentication.
+Author: Senula Nanayakkara
+Date: 2024/09/25
+
+*/
 package com.example.shopease.activities;
 
 import android.app.NotificationChannel;
@@ -29,34 +37,34 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailInput, passwordInput;
     private Button loginButton, signupButton;
     private static final String TAG = "LoginActivity";
-    private static final String CHANNEL_ID = "shop_ease_notifications";  // Notification Channel ID
+    private static final String CHANNEL_ID = "shop_ease_notifications";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Initialize UI elements
+        // Initialize UI components
         emailInput = findViewById(R.id.email);
         passwordInput = findViewById(R.id.password);
         loginButton = findViewById(R.id.login_button);
         signupButton = findViewById(R.id.signup_button);
 
-        // Handle login button click
+        // Handle login button click event
         loginButton.setOnClickListener(view -> {
             String email = emailInput.getText().toString();
             String password = passwordInput.getText().toString();
 
-            // Validate input
+            // Validate input fields
             if (email.isEmpty() || password.isEmpty()) {
                 CustomDialog.showDialog(LoginActivity.this, false, "Error", "Please fill all fields.");
                 return;
             }
 
-            // Create LoginRequest
+            // Create LoginRequest object
             LoginRequest loginRequest = new LoginRequest(email, password);
 
-            // Call API to login
+            // Call loginUser method to authenticate the user
             loginUser(loginRequest);
         });
 
@@ -67,6 +75,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Handles user login by making a network request to the backend API.
+     *
+     * @param loginRequest - Contains email and password for authentication
+     */
     private void loginUser(LoginRequest loginRequest) {
         ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
         Call<LoginResponse> call = apiService.loginUser(loginRequest);
@@ -78,30 +91,31 @@ public class LoginActivity extends AppCompatActivity {
                     String token = response.body().getData().getToken();
 
                     if (token != null) {
-                        // Save token in SharedPreferences (or other secure storage)
+                        // Save JWT token in SharedPreferences for session management
                         getSharedPreferences("auth_prefs", MODE_PRIVATE)
                                 .edit()
                                 .putString("jwt_token", token)
                                 .apply();
 
-                        // Show success popup message
+                        // Show success message using a dialog
                         CustomDialog.showDialog(LoginActivity.this, true, "Success", "Login Successful. Redirecting to Home.");
 
-                        // Show success notification
+                        // Show notification for successful login
                         showNotification("Login Successful", "You have successfully logged in to ShopEase.");
 
-                        // Navigate to HomeActivity after a short delay (2 seconds)
+                        // Navigate to HomeActivity after a delay of 2 seconds
                         loginButton.postDelayed(() -> {
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
-                            finish(); // Close login activity to prevent going back to it
-                        }, 2000); // Delay of 2 seconds
+                            finish(); // Close LoginActivity to prevent back navigation
+                        }, 2000); // 2-second delay
                     } else {
+                        // Display error message if token is not received
                         CustomDialog.showDialog(LoginActivity.this, false, "Error", "Login failed. Please try again.");
                         showNotification("Login Failed", "Login failed. Please try again.");
                     }
                 } else {
-                    // Handle errors like incorrect credentials
+                    // Handle invalid credentials or other errors
                     try {
                         String errorBody = response.errorBody().string();
                         Log.e(TAG, "Error: " + errorBody);
@@ -117,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // Handle network or API error
+                // Handle network errors
                 Log.e(TAG, "Error: " + t.getMessage());
                 CustomDialog.showDialog(LoginActivity.this, false, "Error", "Network error occurred. Please check your connection.");
                 showNotification("Network Error", "Network error occurred. Please check your connection.");
@@ -125,9 +139,14 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Displays a notification with the specified title and message.
+     *
+     * @param title   - The title of the notification
+     * @param message - The message content of the notification
+     */
     private void showNotification(String title, String message) {
-        // Create notification channel for Android O+ (API level 26+)
+        // Create notification channel for devices running Android O or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,

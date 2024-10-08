@@ -1,3 +1,12 @@
+/*
+
+File: ProfileViewPagerAdapter.java
+Description: Adapter for managing fragments in a ViewPager2 for displaying user profile details. It switches between BasicDetailsFragment and AdditionalDetailsFragment and passes arguments to each fragment.
+Author: Senula Nanayakkara
+Date: 2024/09/30
+
+*/
+
 package com.example.shopease.adapters;
 
 import android.os.Bundle;
@@ -17,57 +26,77 @@ public class ProfileViewPagerAdapter extends FragmentStateAdapter {
     private Bundle basicDetailsArguments;
     private Bundle additionalDetailsArguments;
 
+    // Constructor to initialize the fragments and parent fragment activity
     public ProfileViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, BasicDetailsFragment basicDetailsFragment, AdditionalDetailsFragment additionalDetailsFragment) {
         super(fragmentActivity);
         this.basicDetailsFragment = basicDetailsFragment;
         this.additionalDetailsFragment = additionalDetailsFragment;
     }
 
+    /**
+     * Returns the fragment to display based on the current position (tab).
+     * Position 0: BasicDetailsFragment, Position 1: AdditionalDetailsFragment.
+     */
     @NonNull
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                // Pass arguments to BasicDetailsFragment
+                // Pass arguments to BasicDetailsFragment if available
                 if (basicDetailsArguments != null) {
                     basicDetailsFragment.setArguments(basicDetailsArguments);
                 }
                 return basicDetailsFragment;
             case 1:
-                // Pass arguments to AdditionalDetailsFragment
+                // Pass arguments to AdditionalDetailsFragment if available
                 if (additionalDetailsArguments != null) {
                     additionalDetailsFragment.setArguments(additionalDetailsArguments);
                 }
                 return additionalDetailsFragment;
             default:
-                return new Fragment();  // Fallback, should never happen
+                return new Fragment();  // Fallback case, should never happen
         }
     }
 
+    /**
+     * Returns the number of fragments (tabs) in the ViewPager.
+     */
     @Override
     public int getItemCount() {
-        return 2;  // Two tabs: Basic Details and Additional Details
+        return 2;
     }
 
-    // Methods to set arguments for Basic and Additional details fragments
+    /**
+     * Sets the arguments (data) for BasicDetailsFragment.
+     */
     public void setBasicDetailsArguments(Bundle arguments) {
         this.basicDetailsArguments = arguments;
     }
 
+    /**
+     * Sets the arguments (data) for AdditionalDetailsFragment.
+     */
     public void setAdditionalDetailsArguments(Bundle arguments) {
         this.additionalDetailsArguments = arguments;
     }
 
-    // Method to retrieve the BasicDetailsFragment
+    /**
+     * Retrieves the BasicDetailsFragment instance.
+     */
     public BasicDetailsFragment getBasicDetailsFragment() {
         return basicDetailsFragment;
     }
 
-    // Method to retrieve the AdditionalDetailsFragment
+    /**
+     * Retrieves the AdditionalDetailsFragment instance.
+     */
     public AdditionalDetailsFragment getAdditionalDetailsFragment() {
         return additionalDetailsFragment;
     }
 
+    /**
+     * Retrieves the fragment at the given position.
+     */
     public Fragment getFragment(int position) {
         if (position == 0) {
             return basicDetailsFragment;
@@ -77,3 +106,4 @@ public class ProfileViewPagerAdapter extends FragmentStateAdapter {
         return null;
     }
 }
+

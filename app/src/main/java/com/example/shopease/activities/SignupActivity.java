@@ -1,3 +1,11 @@
+/*
+
+File: HomeActivity.java
+Description: Handles the main home screen functionality, including navigation between different fragments (Home, Cart, Orders, Profile). Also manages the back press to confirm app exit.
+Author: Senula Nanayakkara
+Date: 2024/09/25
+
+*/
 package com.example.shopease.activities;
 
 import android.annotation.SuppressLint;
@@ -22,7 +30,6 @@ import com.example.shopease.fragments.BasicDetailsFragment;
 import com.example.shopease.models.Address;
 import com.example.shopease.models.RegisterRequest;
 import com.example.shopease.models.RegisterResponse;
-import com.example.shopease.models.UploadRequest;
 import com.example.shopease.models.UploadResponse;
 import com.example.shopease.network.ApiService;
 import com.example.shopease.network.RetrofitClient;
@@ -71,7 +78,7 @@ public class SignupActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
-        // Bind the TabLayout and ViewPager2
+        // Bind the TabLayout and ViewPager2 for tab navigation
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
                 case 0:
@@ -83,18 +90,19 @@ public class SignupActivity extends AppCompatActivity {
             }
         }).attach();
 
-        // Allow image upload when clicking on the edit icon
+        // Handle image upload when clicking on the edit icon
         editIcon.setOnClickListener(view -> {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(galleryIntent, PICK_IMAGE);
         });
 
-        // Navigate to LoginActivity when login button is clicked
+        // Navigate to LoginActivity on Login button click
         loginButton.setOnClickListener(view -> {
             Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
+        // Handle signup button click and registration
         signupButton.setOnClickListener(view -> {
             BasicDetailsFragment basicDetailsFragment = (BasicDetailsFragment) getSupportFragmentManager().findFragmentByTag("f0");
             AdditionalDetailsFragment additionalDetailsFragment = (AdditionalDetailsFragment) getSupportFragmentManager().findFragmentByTag("f1");
@@ -107,17 +115,24 @@ public class SignupActivity extends AppCompatActivity {
                 }
 
                 Address address = additionalDetailsFragment.getAddress();
-                request.setRole("User");
+                request.setRole("");
                 request.setAddress(address); // Add the address to the request
                 request.setProfile_pic(uploadedImageUrl); // Add the profile pic URL to the request
 
-                // Call the API
+                // Call the API to register the user
                 registerUser(request);
             }
         });
 
     }
 
+    /**
+     * Called when the user selects an image from the gallery.
+     *
+     * @param requestCode - The request code for picking the image
+     * @param resultCode - The result code indicating success or failure
+     * @param data - The intent containing the selected image data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -128,9 +143,8 @@ public class SignupActivity extends AppCompatActivity {
             // Set the selected image in the ImageView
             profileImageView.setImageURI(selectedImage);
 
-            // Upload the image
+            // Upload the selected image to the server
             try {
-                // Get the file path from URI and upload
                 String filePath = getFilePathFromUri(selectedImage);
                 uploadProfileImage(filePath);
             } catch (Exception e) {
@@ -140,7 +154,13 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
-    // Helper method to get the file path from the URI
+    /**
+     * Helper method to retrieve the file path from a URI.
+     *
+     * @param uri - The URI of the selected image
+     * @return String - The file path of the selected image
+     * @throws IOException - If the file path cannot be retrieved
+     */
     private String getFilePathFromUri(Uri uri) throws IOException {
         String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
@@ -154,8 +174,11 @@ public class SignupActivity extends AppCompatActivity {
         throw new IOException("Unable to retrieve the file path.");
     }
 
-
-    // Upload the selected image to the server using UploadRequest
+    /**
+     * Uploads the selected profile image to the server.
+     *
+     * @param filePath - The file path of the selected image
+     */
     private void uploadProfileImage(String filePath) {
         File imageFile = new File(filePath);
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
@@ -168,7 +191,7 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    uploadedImageUrl = response.body().getFileUrl();  // Store the image URL
+                    uploadedImageUrl = response.body().getFileUrl();  // Store the uploaded image URL
                     Log.e("SignupActivity", "Image URL: " + uploadedImageUrl);
                     Toast.makeText(SignupActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -183,8 +206,11 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
-
-
+    /**
+     * Registers the user by sending the registration request to the backend API.
+     *
+     * @param request - The RegisterRequest containing user details
+     */
     private void registerUser(RegisterRequest request) {
         ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
         Call<RegisterResponse> call = apiService.registerUser(request);
@@ -196,15 +222,15 @@ public class SignupActivity extends AppCompatActivity {
                     // Show success dialog
                     CustomDialog.showDialog(SignupActivity.this, true, "Success", "Registration Successful. Redirecting to Login.");
 
-                    // Navigate to LoginActivity after a short delay (optional, but user-friendly)
+                    // Navigate to LoginActivity after a short delay
                     signupButton.postDelayed(() -> {
                         Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
                         startActivity(intent);
-                        finish(); // Optional: Prevent user from going back to the signup screen
+                        finish(); // Close SignupActivity to prevent navigation back
                     }, 2000); // Delay of 2 seconds
                 } else {
+                    // Handle registration failure
                     try {
-                        // Log response error
                         String errorBody = response.errorBody().string();
                         Log.e("SignupActivity", "Registration error: " + errorBody);
 
@@ -216,12 +242,12 @@ public class SignupActivity extends AppCompatActivity {
                         CustomDialog.showDialog(SignupActivity.this, false, "Error", "An unexpected error occurred.");
                     }
                 }
-
             }
 
+
+            // Handle network or API failure
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                // Handle error
                 Log.e("SignupActivity", "Error: " + t.getMessage());
                 Toast.makeText(SignupActivity.this, "Error occurred", Toast.LENGTH_SHORT).show();
             }

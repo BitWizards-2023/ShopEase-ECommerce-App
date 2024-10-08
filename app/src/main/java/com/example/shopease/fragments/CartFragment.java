@@ -1,3 +1,11 @@
+/*
+
+File: CartFragment.java
+Description: Fragment for displaying items in the cart and managing the checkout process. It handles updating the subtotal when item quantities change and navigates to the OrderActivity for placing an order.
+Author: Senula Nanayakkara
+Date: 2024/10/05
+
+*/
 package com.example.shopease.fragments;
 
 import android.content.Intent;
@@ -41,53 +49,57 @@ public class CartFragment extends Fragment {
         subtotalText = view.findViewById(R.id.subtotal_text);
         checkoutButton = view.findViewById(R.id.checkout_button);
 
-        // Set up RecyclerView
+        // Set up the RecyclerView with a linear layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         cartItemList = new ArrayList<>();
 
-        // Add dummy data for now
+        // Add dummy cart items for demonstration purposes
         Vendor vendor1 = new Vendor("Vendor 1", "Best in electronics", "9 AM - 9 PM");
         Vendor vendor2 = new Vendor("Vendor 2", "Best in cosmetics", "10 AM - 6 PM");
 
         cartItemList.add(new CartItem("Product 1", 1, 750.0, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT84Fy08oMXKt99j3kD-x7c4s3YMMnWA5fbFA&s", vendor1));
         cartItemList.add(new CartItem("Product 2", 2, 745.0, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7cLezQqG3X2fKKOAWH2A6ns1UaBZfAoI60A&s", vendor2));
 
-        // Set up CartAdapter
+        // Set up CartAdapter with quantity change listener
         cartAdapter = new CartAdapter(getContext(), cartItemList, new CartAdapter.OnQuantityChangeListener() {
             @Override
             public void onQuantityChanged() {
-                updateSubtotal();
+                updateSubtotal(); // Update subtotal when quantity changes
             }
         });
         recyclerView.setAdapter(cartAdapter);
 
-        // Initial subtotal update
+        // Initial subtotal calculation
         updateSubtotal();
 
-        // Handle checkout button click
+        // Handle checkout button click to navigate to the OrderActivity
         checkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateToOrderActivity();
+                navigateToOrderActivity(); // Navigate to order activity
             }
         });
 
         return view;
     }
 
-    // Update the subtotal when quantity changes
+    /**
+     * Updates the subtotal whenever the quantity of items in the cart changes.
+     */
     private void updateSubtotal() {
         double subtotal = 0.0;
         for (CartItem item : cartItemList) {
-            subtotal += item.getPrice() * item.getQuantity();
+            subtotal += item.getPrice() * item.getQuantity(); // Calculate subtotal based on item quantity
         }
-        subtotalText.setText("Subtotal: Rs. " + subtotal);
+        subtotalText.setText("Subtotal: Rs. " + subtotal); // Display subtotal
     }
 
-    // Navigate to OrderActivity and pass the cart items
+    /**
+     * Navigates to the OrderActivity, passing the cart items for order processing.
+     */
     private void navigateToOrderActivity() {
         Intent intent = new Intent(getActivity(), OrderActivity.class);
-        intent.putExtra("cartItems", (ArrayList<CartItem>) cartItemList); // Pass cart items
-        startActivity(intent);
+        intent.putExtra("cartItems", (ArrayList<CartItem>) cartItemList); // Pass cart items as an ArrayList
+        startActivity(intent); // Start the order activity
     }
 }

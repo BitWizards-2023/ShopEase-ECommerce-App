@@ -1,3 +1,11 @@
+/*
+
+File: BasicDetailsFragment.java
+Description: Fragment for displaying or collecting basic user details like username, email, and password. It can be used in both profile mode (view-only) and input mode (data collection).
+Author: Senula Nanayakkara
+Date: 2024/09/28
+
+*/
 package com.example.shopease.fragments;
 
 import android.os.Bundle;
@@ -18,14 +26,14 @@ import com.example.shopease.models.UpdateProfileRequest;
 public class BasicDetailsFragment extends Fragment {
 
     private EditText usernameInput, emailInput, firstNameInput, lastNameInput, passwordInput, phoneNumberInput;
-    private boolean isProfileMode = false;  // Whether we are displaying profile info or not
+    private boolean isProfileMode = false;  // Determines if the fragment is in profile view mode
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_basic_details, container, false);
 
-        // Initialize the input fields
+        // Initialize input fields
         usernameInput = view.findViewById(R.id.username);
         emailInput = view.findViewById(R.id.email);
         firstNameInput = view.findViewById(R.id.first_name);
@@ -33,12 +41,12 @@ public class BasicDetailsFragment extends Fragment {
         phoneNumberInput = view.findViewById(R.id.phone_number);
         passwordInput = view.findViewById(R.id.password);
 
-        // Disable password field when in profile mode
+        // Hide password field if the fragment is in profile mode
         if (isProfileMode) {
-            passwordInput.setVisibility(View.GONE);  // Hide the password field when displaying profile
+            passwordInput.setVisibility(View.GONE);  // Password input is not needed in profile mode
         }
 
-        // Check if arguments exist and set the fields
+        // Populate fields if arguments are passed to the fragment
         Bundle arguments = getArguments();
         if (arguments != null) {
             usernameInput.setText(arguments.getString("username", ""));
@@ -51,38 +59,43 @@ public class BasicDetailsFragment extends Fragment {
         return view;
     }
 
-    // Method to set profile mode for displaying data instead of gathering input
+    /**
+     * Sets the profile mode for the fragment. If set to true, the fragment will be used for displaying data, not for collecting input.
+     * @param isProfileMode boolean to specify whether the fragment is in profile mode
+     */
     public void setProfileMode(boolean isProfileMode) {
         this.isProfileMode = isProfileMode;
     }
 
-    // Use this method to fetch data for signup
+    /**
+     * Fetches data for registration purposes, excluding the password when in profile mode.
+     * @return RegisterRequest object containing the data for user registration
+     */
     public RegisterRequest getRegisterRequest() {
         if (isProfileMode) {
-            return null;  // No data collection when in profile mode
+            return null;
         }
 
+        // Collect user details for registration
         String userName = usernameInput.getText().toString();
         String email = emailInput.getText().toString();
         String firstName = firstNameInput.getText().toString();
         String lastName = lastNameInput.getText().toString();
         String phoneNumber = phoneNumberInput.getText().toString();
         String password = passwordInput.getText().toString();
-        String role = "User";
+        String role = "Customer";
 
+        // Return a new RegisterRequest with the collected data
         return new RegisterRequest(email, password, userName, firstName, lastName, role, null, phoneNumber);
     }
 
-    // Create method to get the update request with all necessary details
-    // Create method to get the update request with all necessary details
+    /**
+     * Creates an UpdateProfileRequest object with the updated basic details.
+     * @return UpdateProfileRequest object containing updated user details
+     */
     public UpdateProfileRequest getUpdateRequest() {
-        // Log the current field values to check what's being captured
-        Log.e("BasicDetailsFragment", "Email: " + (emailInput != null ? emailInput.getText().toString() : "null"));
-        Log.e("BasicDetailsFragment", "First Name: " + (firstNameInput != null ? firstNameInput.getText().toString() : "null"));
-        Log.e("BasicDetailsFragment", "Last Name: " + (lastNameInput != null ? lastNameInput.getText().toString() : "null"));
-        Log.e("BasicDetailsFragment", "Phone Number: " + (phoneNumberInput != null ? phoneNumberInput.getText().toString() : "null"));
 
-        // Create a new UpdateProfileRequest and pass empty strings for any fields that are null
+        // Create and return an UpdateProfileRequest with the current input values
         UpdateProfileRequest updateRequest = new UpdateProfileRequest();
         updateRequest.setEmail(emailInput != null ? emailInput.getText().toString() : "");
         updateRequest.setFirstName(firstNameInput != null ? firstNameInput.getText().toString() : "");

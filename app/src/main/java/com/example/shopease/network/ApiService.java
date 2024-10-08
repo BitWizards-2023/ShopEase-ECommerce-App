@@ -3,6 +3,8 @@ package com.example.shopease.network;
 import com.example.shopease.models.CategoryResponse;
 import com.example.shopease.models.LoginRequest;
 import com.example.shopease.models.LoginResponse;
+import com.example.shopease.models.OrderRequest;
+import com.example.shopease.models.OrderResponse;
 import com.example.shopease.models.ProductResponse;
 import com.example.shopease.models.ProductSearchResponse;
 import com.example.shopease.models.RegisterRequest;
@@ -21,7 +23,6 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -56,4 +57,13 @@ public interface ApiService {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );
+
+    @POST("/api/v1/orders")
+    Call<Void> placeOrder(
+            @Header("Authorization") String authToken,   // Authorization header
+            @Body OrderRequest orderRequest              // Order request body
+    );
+
+    @GET("api/v1/orders/customer")
+    Call<OrderResponse> getCustomerOrders(@Header("Authorization") String token);
 }

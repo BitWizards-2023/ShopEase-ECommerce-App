@@ -1,3 +1,11 @@
+/*
+
+File: ProfileFragment.java
+Description: Fragment for displaying and updating the user's profile. It fetches the profile data, displays it in a ViewPager2, and allows the user to update their profile information.
+Author: Senula Nanayakkara
+Date: 2024/09/29
+
+*/
 package com.example.shopease.fragments;
 
 import android.content.Context;
@@ -18,7 +26,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.shopease.R;
-import com.example.shopease.activities.LoginActivity;
 import com.example.shopease.adapters.ProfileViewPagerAdapter;
 import com.example.shopease.models.Address;
 import com.example.shopease.models.UpdateProfileRequest;
@@ -36,14 +43,14 @@ import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
 
-    private static final String TAG = "ProfileFragment";
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager;
-    private ImageView profileImageView;
-    private TextView usernameText;
-    private ProfileViewPagerAdapter adapter;
-    private Button updateProfileButton;
-    private String userId;
+    private static final String TAG = "ProfileFragment"; // Tag for logging
+    private TabLayout tabLayout; // Tab layout for the profile page
+    private ViewPager2 viewPager; // ViewPager2 for switching between profile tabs
+    private ImageView profileImageView; // Profile image view
+    private TextView usernameText; // Text view for displaying the username
+    private ProfileViewPagerAdapter adapter; // Adapter for the ViewPager2
+    private Button updateProfileButton; // Button to update the profile
+    private String userId; // ID of the logged-in user
 
     @Nullable
     @Override
@@ -59,7 +66,7 @@ public class ProfileFragment extends Fragment {
 
         Log.e(TAG, "ProfileFragment view created.");
 
-        // Fetch profile details
+        // Fetch profile details from the backend
         fetchUserProfile();
 
         // Handle the update profile button click
@@ -68,6 +75,9 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Fetches the user profile data from the backend using the stored JWT token.
+     */
     private void fetchUserProfile() {
         Log.e(TAG, "Attempting to fetch user profile...");
 
@@ -77,13 +87,14 @@ public class ProfileFragment extends Fragment {
                 .getString("jwt_token", null);
 
         if (token != null) {
-            String authHeader = "Bearer " + token;  // Bearer token format
+            String authHeader = "Bearer " + token;
 
             Log.e(TAG, "JWT token found: " + token);
 
             ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
             Call<UserProfileResponse> call = apiService.getUserProfile(authHeader);
 
+            // Make an API call to fetch the user's profile data
             call.enqueue(new Callback<UserProfileResponse>() {
                 @Override
                 public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
@@ -125,6 +136,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Updates the user profile using data from the BasicDetailsFragment and AdditionalDetailsFragment.
+     */
     private void updateUserProfile() {
         // Get the correct fragment instances from the adapter
         BasicDetailsFragment basicDetailsFragment = (BasicDetailsFragment) adapter.getFragment(0);
@@ -151,13 +165,14 @@ public class ProfileFragment extends Fragment {
                 .getString("jwt_token", null);
 
         if (token != null) {
-            String authHeader = "Bearer " + token;  // Bearer token format
+            String authHeader = "Bearer " + token;
 
             Log.e(TAG, "JWT token found: " + token);
             // Call the API to update the profile
             ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
             Call<UpdateProfileResponse> call = apiService.updateUserProfile(authHeader, updateRequest);
 
+            // Make an API call to update the profile data
             call.enqueue(new Callback<UpdateProfileResponse>() {
                 @Override
                 public void onResponse(Call<UpdateProfileResponse> call, Response<UpdateProfileResponse> response) {
@@ -182,8 +197,11 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-
-
+    /**
+     * Sets up the ViewPager2 with fragments for basic details and additional details using the fetched profile data.
+     *
+     * @param profileData The profile data fetched from the backend API.
+     */
     private void setupViewPager(UserProfileResponse.Data profileData) {
         Log.e(TAG, "Setting up ViewPager with profile data...");
 
@@ -207,7 +225,7 @@ public class ProfileFragment extends Fragment {
 
         Log.e(TAG, "Additional details bundle created: " + additionalDetailsBundle.toString());
 
-        // Create the fragments
+        // Create the fragments and set arguments
         BasicDetailsFragment basicDetailsFragment = new BasicDetailsFragment();
         basicDetailsFragment.setArguments(basicDetailsBundle);
 
@@ -235,6 +253,3 @@ public class ProfileFragment extends Fragment {
         Log.e(TAG, "ViewPager setup complete.");
     }
 }
-
-
-
