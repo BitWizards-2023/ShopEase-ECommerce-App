@@ -129,7 +129,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         ratingStar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showRatingDialog();
+                showRatingDialog(vendorId);
             }
         });
     }
@@ -254,7 +254,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     /**
      * Show the rating dialog where users can give a rating and submit a comment.
      */
-    private void showRatingDialog() {
+    private void showRatingDialog(String vendorId) {
         // Create and show the rating dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -292,16 +292,64 @@ public class ProductDetailsActivity extends AppCompatActivity {
         star4.setOnClickListener(starClickListener);
         star5.setOnClickListener(starClickListener);
 
+        // Create the dialog
+        AlertDialog dialog = builder.create();
+
         // Submit button click event
         submitButton.setOnClickListener(v -> {
             String comment = commentBox.getText().toString().trim();
-            Toast.makeText(ProductDetailsActivity.this, "Rating: " + currentRating + " stars. Comment: " + comment, Toast.LENGTH_SHORT).show();
+            if (currentRating == 0) {
+                Toast.makeText(ProductDetailsActivity.this, "Please select a rating", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            submitVendorRating(vendorId, currentRating, comment);
+            dialog.dismiss(); // Close dialog after submission
         });
 
-        // Show dialog
-        AlertDialog dialog = builder.create();
+        // Show the dialog
         dialog.show();
     }
+
+    //Submit vendor rating
+    private void submitVendorRating(String vendorId, int rating, String comment) {
+        // Retrieve JWT token from SharedPreferences
+        String token = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null);
+
+        if (token != null) {
+            String authHeader = "Bearer " + token;  // Prepare token for Authorization header
+
+            // Create the request body
+            Map<String, Object> ratingRequest = new HashMap<>();
+            ratingRequest.put("rating", rating);
+            ratingRequest.put("comment", comment);
+
+            // Call the API to submit the rating
+            Call<Void> call = apiService.submitVendorRating(vendorId, authHeader, ratingRequest);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(ProductDetailsActivity.this, "Rating submitted successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(ProductDetailsActivity.this, "Failed to submit rating", Toast.LENGTH_SHORT).show();
+                        Log.e("VendorRating", "Error: " + response.message());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    // Handle network failure
+                    Toast.makeText(ProductDetailsActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("VendorRating", "Error: " + t.getMessage());
+                }
+            });
+        } else {
+            // Handle missing token case
+            Toast.makeText(ProductDetailsActivity.this, "User not authenticated", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     /**
      * Updates the star icons based on the current rating value.

@@ -9,6 +9,7 @@ Date: 2024/10/01
 package com.example.shopease.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +17,26 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.shopease.R;
+import com.example.shopease.activities.ProductDetailsActivity;
 import com.example.shopease.models.CartItem;
+import com.example.shopease.models.UpdateCartRequest;
+import com.example.shopease.network.ApiService;
+import com.example.shopease.network.RetrofitClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
@@ -73,6 +85,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             item.setQuantity(item.getQuantity() + 1); // Increase the quantity
             notifyItemChanged(position); // Notify that item has changed
             onQuantityChangeListener.onQuantityChanged(); // Notify the listener that quantity has changed
+            updateCartItem(item);  // Call to update cart in backend
         });
 
         // Handle decrease quantity button click
@@ -81,6 +94,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 item.setQuantity(item.getQuantity() - 1); // Decrease the quantity
                 notifyItemChanged(position); // Notify that item has changed
                 onQuantityChangeListener.onQuantityChanged(); // Notify the listener that quantity has changed
+                updateCartItem(item);  // Call to update cart in backend
             }
         });
     }
@@ -92,6 +106,49 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public int getItemCount() {
         return cartItemList.size();
     }
+
+    // Method to call API and update cart item
+    private void updateCartItem(CartItem item) {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        String cartItemId = item.getCartItemId(); // Assuming cartItemId is the same as productId
+        // Create selectedOptions map with empty strings as per Swagger example
+        Map<String, String> selectedOptions = new HashMap<>();
+        selectedOptions.put("additionalProp1", "");
+        selectedOptions.put("additionalProp2", "");
+        selectedOptions.put("additionalProp3", "");
+
+        UpdateCartRequest updateCartRequest = new UpdateCartRequest(item.getQuantity(), selectedOptions);  // Create request body with quantity and empty additional props
+        // Retrieve JWT token from SharedPreferences
+        String token = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null);
+
+        if (token != null) {
+            String authHeader = "Bearer " + token; // Prepare token for Authorization header
+            Call<Void> call = apiService.updateCartItem(cartItemId, authHeader, updateCartRequest);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(context, "Cart updated", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Failed to update cart", Toast.LENGTH_SHORT).show();
+                        Log.e("CartAdapter", "Error: " + response.toString());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(context, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Handle missing token case
+            Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
 
     // ViewHolder class to hold references to the views in each cart item layout
     public class CartViewHolder extends RecyclerView.ViewHolder {

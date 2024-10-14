@@ -17,6 +17,7 @@ public class CartItem implements Serializable {
     private double price;
     private String imageUrl;
     private String productId; // Optional field to store the product ID
+    private String cartItemId; // Optional field to store the product ID
     private String vendorId; // Vendor associated with the product; must implement Serializable
 
     /**
@@ -64,6 +65,10 @@ public class CartItem implements Serializable {
         return vendorId;
     }
 
+    public String getCartItemId() {
+        return cartItemId;
+    }
+
     // Setter method to update the quantity of the product
     public void setQuantity(int quantity) {
         this.quantity = quantity;
@@ -77,5 +82,9 @@ public class CartItem implements Serializable {
     // Setter method to set the name of product
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+    // Setter method to set the cart item id
+    public void setCartItemId(String cartItemId) {
+        this.cartItemId = cartItemId;
     }
 }

@@ -19,6 +19,7 @@ import com.example.shopease.models.ProductResponse;
 import com.example.shopease.models.ProductSearchResponse;
 import com.example.shopease.models.RegisterRequest;
 import com.example.shopease.models.RegisterResponse;
+import com.example.shopease.models.UpdateCartRequest;
 import com.example.shopease.models.UpdateProfileRequest;
 import com.example.shopease.models.UpdateProfileResponse;
 import com.example.shopease.models.UploadResponse;
@@ -38,6 +39,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import java.util.Map;
 
 public interface ApiService {
 
@@ -85,6 +87,10 @@ public interface ApiService {
             @Query("pageSize") int pageSize
     );
 
+    //POST request for submit vendor rating
+    @POST("/api/VendorRating/submit/{vendorId}")
+    Call<Void> submitVendorRating(@Path("vendorId") String vendorId, @Header("Authorization") String token, @Body Map<String, Object> ratingRequest);
+
     //Place a new order
     @POST("/api/v1/orders")
     Call<Void> placeOrder(
@@ -103,6 +109,14 @@ public interface ApiService {
     // GET request to fetch cart items
     @GET("/api/v1/cart")
     Call<CartResponse> getCartItems(@Header("Authorization") String authHeader);
+
+    // PATCH request to update a cart item
+    @PATCH("/api/v1/cart/items/{cartItemId}")
+    Call<Void> updateCartItem(@Path("cartItemId") String cartItemId, @Header("Authorization") String authHeader, @Body UpdateCartRequest updateCartRequest);
+
+    // GET request to checkout cart
+    @GET("/api/v1/cart/checkout")
+    Call<Void> checkoutCart(@Header("Authorization") String token);
 
     /**
      * Fetches the vendor profile details based on the vendorId.

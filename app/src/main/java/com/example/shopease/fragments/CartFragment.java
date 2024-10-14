@@ -8,6 +8,7 @@ Date: 2024/10/05
 package com.example.shopease.fragments;
 
 import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -71,12 +73,52 @@ public class CartFragment extends Fragment {
         checkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateToOrderActivity(); // Navigate to order activity
+                callCheckoutAPI(); // Call the checkout API
             }
         });
 
         return view;
     }
+
+    /**
+     * Call the checout cart items from the backend and then navigate for order confirm page.
+     */
+    private void callCheckoutAPI() {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+
+        // Retrieve JWT token from SharedPreferences
+        String token = getContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null);
+
+        if (token != null) {
+            String authHeader = "Bearer " + token; // Prepare the Authorization header
+
+            // Make the API call
+            Call<Void> call = apiService.checkoutCart(authHeader);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        // Navigate to the OrderActivity if checkout is successful
+                        navigateToOrderActivity();
+                    } else {
+                        // Handle failure response
+                        Toast.makeText(getContext(), "Checkout failed. Try again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    // Handle network failure
+                    Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Handle missing token case
+            Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     /**
      * Fetches the cart items from the backend and then fetches the product details for each item.
