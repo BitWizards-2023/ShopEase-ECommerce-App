@@ -63,6 +63,9 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation ("com.auth0.android:jwtdecode:2.0.0")
 
+    implementation ("com.google.firebase:firebase-messaging:24.0.2")
+
+
 
 }
 

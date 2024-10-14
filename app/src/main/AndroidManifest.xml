@@ -12,6 +12,7 @@
 
     <!-- Ensure permission for notifications in Android 13 (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -50,6 +51,7 @@
         <activity android:name=".activities.ProductDetailsActivity" />
         <activity android:name=".activities.CategoryProductsActivity" />
         <activity android:name=".activities.OrderActivity" />
+
 
 
     </application>
